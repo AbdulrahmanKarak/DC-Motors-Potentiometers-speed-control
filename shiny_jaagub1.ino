@@ -1,72 +1,82 @@
+const int sw_L = 1;  
+const int sw_R = 2;  
 
-const int motor1 = 5;
-const int motor2 = 3;
-const int pot1 = A1;
-const int pot2 = A0;
-const int switch1 = 2;
-const int switch2 = 1;
-int Reading1 = 0;
-int Reading2 = 0;
-int Motorvalue1 = 0;
-int Motorvalue2 = 0;
-int krk1 =0;
-int krk2 =0;
+const int pot_L = A0; 
+const int pot_R = A1;
+
+const int DCmotor_L = 3;
+const int DCmotor_R = 5;
 
 
+int inDC_L;
+int inDC_R;
+int outDC_L;
+int outDC_R;
+
+
+char reading = 'x';
 
 void setup()
 {
-  pinMode(A0 , INPUT );
-  pinMode(A1 , INPUT );
-  pinMode( 1 , INPUT );
-  pinMode( 2 , INPUT );
-  pinMode( 3 , OUTPUT );
-  pinMode( 5 , OUTPUT );
-  Serial.begin(9600);
+  pinMode(sw_L, INPUT);
+  pinMode(sw_R, INPUT);
+
+  pinMode(pot_R, INPUT);
+  pinMode(pot_L, INPUT);
+
+  pinMode(DCmotor_L, OUTPUT); 
+  pinMode(DCmotor_R, OUTPUT); 
+  
+  Serial.begin(9600); 
+  
+
 }
 
-void loop() 
+void loop()
 {
-  Reading1 = digitalRead(switch1);
-  Reading2 = digitalRead(switch2);
-  if( Reading1 == HIGH)
+ 
+ inDC_L = analogRead(pot_L);
+ inDC_R = analogRead(pot_R);
+  
+   outDC_L = map(inDC_L, 0, 1023, 0, 255);
+   outDC_R = map(inDC_R, 0, 1023, 0, 255);
+  
+   reading=Serial.read();
+  
+
+  if(digitalRead(sw_L) || reading == 'L' )
+
   {
-    Motorvalue1 = analogRead(pot1);
-    digitalWrite( 5 , HIGH);
-    delay(Motorvalue1);
-    digitalWrite( 5 , LOW);
-    delay(Motorvalue1);
-    Serial.write(Motorvalue1);
+       analogWrite(DCmotor_L, outDC_L);
+       Serial.print("outDC_L = ");
+       Serial.println(outDC_L);
+       delay(1000);
+     
+  }
+ else if(digitalRead(sw_R) || reading == 'R')
+  {
+    analogWrite(DCmotor_R, outDC_R);
+    Serial.print("outDC_R = ");
+    Serial.println(outDC_R);
+    delay(1000);
+    while(Serial.read() == 'L');
+
   }
   
-  
-  else if( Reading2 == HIGH)
-  {
-    Motorvalue2 = analogRead(pot1);
-    digitalWrite( 3 , HIGH);
-    delay(Motorvalue2);
-    digitalWrite( 3 , LOW);
-    delay(Motorvalue2);
-  }
-  
-  if( Reading1 == HIGH && Reading2 == HIGH)
-  {
-    Motorvalue1 = analogRead(pot1);
-    digitalWrite( 5 , HIGH);
-    delay(Motorvalue1);
-    digitalWrite( 5 , LOW);
-    delay(Motorvalue1);
-    Motorvalue2 = analogRead(pot1);
-    digitalWrite( 3 , HIGH);
-    delay(Motorvalue2);
-    digitalWrite( 3 , LOW);
-    delay(Motorvalue2);
-  }
-  
-  else
-  {
-    digitalWrite( 5 , LOW);
-    digitalWrite( 3 , LOW);
-  }
+ else if (digitalRead(sw_L) || digitalRead(sw_R) || reading == 'S')
+   {
+     analogWrite(DCmotor_L, 0 );
+     analogWrite(DCmotor_R, 0);
+   }
+ else 
+   {
+   Serial.println(" Open the switch");delay(2000);
+   }
+                                          
+
   
 }
+                    
+
+
+
